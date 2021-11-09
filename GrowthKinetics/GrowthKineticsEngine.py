@@ -34,7 +34,7 @@ class GrowthKineticsEngine:
             times = np.array(range(time_points)) + 1
         for n in range(n_iter):
             adj_wbc = self._wbc * (1 + np.array([(np.random.random() - 0.5) / 100. for x in range(len(self._wbc))]))
-            for cluster_id in range(1, n_clusters + 1):
+            for cluster_id in list(mcmc_trace_cell_abundance[sample_list[0]]):
                 cluster_abundances = []
                 for sample_name, sample_abundances in mcmc_trace_cell_abundance.items():
                     cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
