@@ -2,6 +2,7 @@ import numpy as np
 import bisect
 from collections import defaultdict
 from scipy.stats import linregress
+from scipy import interpolate
 
 
 class GrowthKineticsEngine:
@@ -37,7 +38,10 @@ class GrowthKineticsEngine:
                 cluster_abundances = []
                 for sample_name, sample_abundances in mcmc_trace_cell_abundance.items():
                     cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
-                cluster_slope = linregress(times, cluster_abundances * adj_wbc).slope
+                ## Interpolation of cluster_abundances
+                interpolate_func = interpolate.interp1d(self.times_sample, cluster_abundances)
+                cluster_abundances_interpolate = interpolate_func(self.times)
+                cluster_slope = linregress(self.times, cluster_abundances_interpolate * adj_wbc).slope
                 self._growth_rates[cluster_id].append(cluster_slope)
 
     def line_fit(self, x, c_idx, fb_x_vals, len_pre_tp, adj_dens):
