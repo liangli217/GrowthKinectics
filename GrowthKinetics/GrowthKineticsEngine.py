@@ -7,10 +7,12 @@ from scipy import interpolate
 
 class GrowthKineticsEngine:
 
-    def __init__(self, patient, wbc):
+    def __init__(self, patient, wbc, times, times_sample):
         self._patient = patient
         self._wbc = wbc
         self._growth_rates = defaultdict(list)
+        self.times = times
+        self.times_sample = times_sample
 
     @property
     def growth_rates(self):
@@ -20,17 +22,18 @@ class GrowthKineticsEngine:
     def wbc(self):
         return self._wbc
 
-    def estimate_growth_rate(self, mcmc_trace_cell_abundance, times=None, n_iter=100, conv=1e-40):
+    def estimate_growth_rate(self, mcmc_trace_cell_abundance, n_iter=100, conv=1e-40):
         '''
         
         '''
         # Number of samples for this Patient
         sample_list = list(mcmc_trace_cell_abundance.keys())
+
         time_points = len(sample_list)
-        n_clusters = len(list(mcmc_trace_cell_abundance[sample_list[0]]))
+        # n_clusters = len(list(mcmc_trace_cell_abundance[sample_list[0]]))
         #cluster_rates = defaultdict(list)
         # If times of samples are not provided, treat as an integers
-        if not times:
+        if not self.times:
             times = np.array(range(time_points)) + 1
         for n in range(n_iter):
             adj_wbc = self._wbc * (1 + np.array([(np.random.random() - 0.5) / 100. for x in range(len(self._wbc))]))
