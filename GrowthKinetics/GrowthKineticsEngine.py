@@ -7,12 +7,13 @@ from scipy import interpolate
 
 class GrowthKineticsEngine:
 
-    def __init__(self, patient, wbc, times, times_sample):
+    def __init__(self, patient, wbc, times, times_sample, sample_wbc):
         self._patient = patient
         self._wbc = wbc
         self._growth_rates = defaultdict(list)
         self.times = times
         self.times_sample = times_sample
+        self.sample_wbc = sample_wbc
 
     @property
     def growth_rates(self):
@@ -27,8 +28,8 @@ class GrowthKineticsEngine:
         
         '''
         # Number of samples for this Patient
-        sample_list = list(mcmc_trace_cell_abundance.keys())
-
+        # sample_list = list(mcmc_trace_cell_abundance.keys())
+        sample_list = self.sample_wbc
         time_points = len(sample_list)
         # n_clusters = len(list(mcmc_trace_cell_abundance[sample_list[0]]))
         #cluster_rates = defaultdict(list)
@@ -40,7 +41,8 @@ class GrowthKineticsEngine:
             for cluster_id in list(mcmc_trace_cell_abundance[sample_list[0]]):
                 cluster_abundances = []
                 for sample_name, sample_abundances in mcmc_trace_cell_abundance.items():
-                    cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
+                    if sample_name in sample_list:
+                        cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
                 ## Interpolation of cluster_abundances
                 interpolate_func = interpolate.interp1d(self.times_sample, cluster_abundances)
                 cluster_abundances_interpolate = interpolate_func(self.times)

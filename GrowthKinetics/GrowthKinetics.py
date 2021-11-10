@@ -9,8 +9,8 @@ def run_tool(args):
 
     patient_data = Patient.Patient(indiv_name=args.indiv_id)
     mcmc_trace_cell_abundance, num_itertaions = load_mcmc_trace_abundances(args.abundance_mcmc_trace)
-    times_sample, times, wbc_dfd = load_wbc_file(args.wbc_time_file)
-    gk_engine = GrowthKineticsEngine(patient_data, wbc_dfd, times, times_sample)
+    times_sample, times, wbc_dfd, sample_wbc = load_wbc_file(args.wbc_time_file)
+    gk_engine = GrowthKineticsEngine(patient_data, wbc_dfd, times, times_sample, sample_wbc)
     gk_engine.estimate_growth_rate(mcmc_trace_cell_abundance, n_iter=min(num_itertaions, args.n_iter))
 
     # Output and visualization
@@ -50,8 +50,8 @@ def load_wbc_file(file):
             values = line.strip('\r\n').split('\t')
             wbc.append(float(values[-1]))
             times.append(int(values[1]))
-            if line.startswith('JB'):
+            if line.startswith('JB') or line.startswith('RP'):
                 times_sample.append(int(values[1]))
                 sample_wbc.append(values[0])
 
-    return times_sample, times, wbc
+    return times_sample, times, wbc, sample_wbc
