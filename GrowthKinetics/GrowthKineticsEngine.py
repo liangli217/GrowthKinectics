@@ -54,10 +54,13 @@ class GrowthKineticsEngine:
                 #         print(sample_abundances[cluster_id][n])
                 #         cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
                 ## Interpolation of cluster_abundances
-                interpolate_func = interpolate.interp1d(self.times_sample, cluster_abundances)
-                cluster_abundances_interpolate = interpolate_func(self.times)
-                cluster_slope = linregress(self.times, cluster_abundances_interpolate * adj_wbc).slope
-                self._growth_rates[cluster_id].append(cluster_slope)
+                interpolate_func = interpolate.interp1d(self.times_sample_in_year, cluster_abundances)
+                cluster_abundances_interpolate = interpolate_func(self.times_in_year)
+                ## added the log transformation
+                cluster_slope = linregress(self.times_in_year, np.log(cluster_abundances_interpolate * adj_wbc)).slope
+                ## adjust the slope calculation
+                adj_slope = np.exp(cluster_slope) -1
+                self._growth_rates[cluster_id].append(adj_slope)
 
     def line_fit(self, x, c_idx, fb_x_vals, len_pre_tp, adj_dens):
         """ """
