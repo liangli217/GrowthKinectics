@@ -13,6 +13,10 @@ class GrowthKineticsEngine:
         self._growth_rates = defaultdict(list)
         self.times = times
         self.times_sample = times_sample
+        ## convert days to years
+        self.times_in_year = [x / 365 for x in self.times]
+        self.times_sample_in_year = [x / 365 for x in self.times_sample]
+
         self.sample_wbc = sample_wbc
 
     @property
