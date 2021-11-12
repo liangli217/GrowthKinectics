@@ -49,9 +49,9 @@ def load_wbc_file(file):
         for line in wbc_file:
             values = line.strip('\r\n').split('\t')
             wbc.append(float(values[-1]))
-            times.append(int(values[1]))
+            times.append(float(values[1]))
             if line.startswith('JB') or line.startswith('RP'):
-                times_sample.append(int(values[1]))
+                times_sample.append(float(values[1]))
                 sample_wbc.append(values[0])
 
     return times_sample, times, wbc, sample_wbc
