@@ -44,9 +44,15 @@ class GrowthKineticsEngine:
             adj_wbc = self._wbc * (1 + np.array([(np.random.random() - 0.5) / 100. for x in range(len(self._wbc))]))
             for cluster_id in list(mcmc_trace_cell_abundance[sample_list[0]]):
                 cluster_abundances = []
-                for sample_name, sample_abundances in mcmc_trace_cell_abundance.items():
-                    if sample_name in sample_list:
-                        cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
+                ## iterate through the samples in the wbc file to make sure the order is correct
+                for sample_name in sample_list:
+                    sample_abundances = mcmc_trace_cell_abundance[sample_name]
+                    cluster_abundances.append(sample_abundances[cluster_id][n] + conv )
+
+                # for sample_name, sample_abundances in mcmc_trace_cell_abundance.items():
+                #     if sample_name in sample_list:
+                #         print(sample_abundances[cluster_id][n])
+                #         cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
                 ## Interpolation of cluster_abundances
                 interpolate_func = interpolate.interp1d(self.times_sample, cluster_abundances)
                 cluster_abundances_interpolate = interpolate_func(self.times)
