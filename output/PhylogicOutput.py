@@ -1123,7 +1123,7 @@ class PhylogicOutput(object):
                                 label=str(clust) + " - %1.2f" % (sum(np.array(rate) < 0) / float(len(rate))),
                                 color=ClusterColors.get_hex_string(clust))
         plt.title("Clusters growth rate")
-        plt.xlabel("growth rate")
+        plt.xlabel(r"Growth Rate ($\times 10^3$ cells per ml / Year)")
         plt.ylabel("Probability Density")
         plt.legend()
         plt.savefig(indiv + ".growth_rate.pdf")
