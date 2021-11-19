@@ -1117,9 +1117,11 @@ class PhylogicOutput(object):
         for clust, rate in growth_rates.items():
             if sum(rate) == 0: 
                 continue
-            sns.distplot(np.array(rate), bins=35,
-                            label=str(clust) + " - %1.2f" % (sum(np.array(rate) < 0) / float(len(rate))),
-                            color=ClusterColors.get_hex_string(clust))            
+            if clust ==3:
+
+                sns.distplot(np.array(rate), bins=35,
+                                label=str(clust) + " - %1.2f" % (sum(np.array(rate) < 0) / float(len(rate))),
+                                color=ClusterColors.get_hex_string(clust))
         plt.title("Clusters growth rate")
         plt.xlabel("growth rate")
         plt.ylabel("Probability Density")
