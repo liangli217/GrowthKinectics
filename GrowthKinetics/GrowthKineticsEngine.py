@@ -47,7 +47,7 @@ class GrowthKineticsEngine:
                 ## iterate through the samples in the wbc file to make sure the order is correct
                 for sample_name in sample_list:
                     sample_abundances = mcmc_trace_cell_abundance[sample_name]
-                    cluster_abundances.append(sample_abundances[cluster_id][n] + conv )
+                    cluster_abundances.append(float(sample_abundances[cluster_id][n] ))
 
                 # for sample_name, sample_abundances in mcmc_trace_cell_abundance.items():
                 #     if sample_name in sample_list:
@@ -55,10 +55,14 @@ class GrowthKineticsEngine:
                 #         cluster_abundances.append(sample_abundances[cluster_id][n] + conv)
 
                 ## Interpolation of cluster_abundances
-                interpolate_func = interpolate.interp1d(self.times_sample_in_year, cluster_abundances)
+                scaled_cluster_abundances = [i /100+ conv for i in cluster_abundances]
+
+                interpolate_func = interpolate.interp1d(self.times_sample_in_year, scaled_cluster_abundances)
                 cluster_abundances_interpolate = interpolate_func(self.times_in_year)
                 ## added the log transformationq
                 cluster_slope = linregress(self.times_in_year, np.log(cluster_abundances_interpolate * adj_wbc)).slope
+                # if cluster_id ==3:
+                #     print adj_wbc
                 ## adjust the slope calculation
                 adj_slope = np.exp(cluster_slope) -1
                 self._growth_rates[cluster_id].append(adj_slope)
