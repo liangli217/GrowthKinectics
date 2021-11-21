@@ -1124,7 +1124,8 @@ class PhylogicOutput(object):
         plt.title("Clusters Growth Rate")
         plt.xlabel("Growth Rate / Year")
         plt.ylabel("Probability Density")
-        plt.xlim([-5, 10])
+        plt.xlim([-5, 1
+                  0])
         plt.ylim([0,5])
         plt.legend()
         plt.savefig(indiv + ".growth_rate.pdf")
