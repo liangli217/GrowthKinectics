@@ -61,10 +61,11 @@ class GrowthKineticsEngine:
                 cluster_abundances_interpolate = interpolate_func(self.times_in_year)
                 ## added the log transformationq
                 cluster_slope = linregress(self.times_in_year, np.log(cluster_abundances_interpolate * adj_wbc)).slope
-                # if cluster_id ==3:
-                #     print adj_wbc
+                adj_slope = (np.exp(cluster_slope) - 1)
+                if cluster_id ==6:
+                    print adj_slope
                 ## adjust the slope calculation
-                adj_slope = np.exp(cluster_slope) -1
+
                 self._growth_rates[cluster_id].append(adj_slope)
 
     def line_fit(self, x, c_idx, fb_x_vals, len_pre_tp, adj_dens):
