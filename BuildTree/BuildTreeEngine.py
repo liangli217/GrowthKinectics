@@ -97,7 +97,7 @@ class BuildTreeEngine:
 
         # return {cluster_id: cluster.hist for cluster_id, cluster in self._patient.ClusteringResults.items()}
 
-    def build_tree(self, n_iter=250, burn_in=100):
+    def build_tree(self, n_iter=3, burn_in=2):
         """ Main function to construct phylogenetic tree """
         tree = Tree()
         # Create initial tree, where each cluster is a child of the clonal cluster
