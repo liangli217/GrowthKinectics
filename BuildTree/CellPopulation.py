@@ -27,8 +27,8 @@ def run_tool(args):
     cp_engine = CellPopulationEngine(patient_data, seed=args.seed)
     constrained_ccf = cp_engine.compute_constrained_ccf()
 
-    cell_ancestry = bt_engine.get_cell_ancestry()
-    cell_abundance = cp_engine.get_cell_abundance(constrained_ccf)
+    cell_ancestry = bt_engine.get_cell_ancestry(patient_data.TopTree)
+    cell_abundance = cp_engine.get_cell_abundance_across_samples(constrained_ccf)
     # Output and visualization
     import output.PhylogicOutput
     phylogicoutput = output.PhylogicOutput.PhylogicOutput()
