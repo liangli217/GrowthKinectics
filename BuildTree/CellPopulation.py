@@ -17,7 +17,8 @@ def run_tool(args):
     # Patient load cluster and mut ccf files
     parse_sif_file(args.sif, args.mutation_ccf_file, patient_data)
     load_clustering_results(args.cluster_ccf_file, patient_data)
-    tree_edges = load_tree_edges_file(args.tree_tsv)
+    # tree_edges = load_tree_edges_file(args.tree_tsv)
+    tree_edges = [(2, 4), (1, 2), (4, 6), (2, 3)]
     bt_engine = BuildTreeEngine(patient_data)
     tree = Tree()
     tree.init_tree_from_clustering(patient_data.ClusteringResults)
