@@ -137,14 +137,14 @@ class BuildTreeEngine:
             self._update_mcmc_trace(tuple(), 0.0, self._collect_cluster_densities())
         self.set_top_tree(tree)
 
-    def get_cell_ancestry(self):
+    def get_cell_ancestry(self, top_tree):
         """
         For each node in the tree returns list of all its ancestors
         :return: Dictionary (node: list of ancestors)
         """
         cells_ancestry = {}
-        for node_id in self._top_tree.nodes:
-            cells_ancestry[node_id] = ([node_id] + list(self._top_tree.get_ancestry(node_id)))[::-1]
+        for node_id in top_tree.nodes:
+            cells_ancestry[node_id] = ([node_id] + list(top_tree.get_ancestry(node_id)))[::-1]
         return cells_ancestry
 
     """
