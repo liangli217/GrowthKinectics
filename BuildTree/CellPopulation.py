@@ -77,7 +77,38 @@ def parse_sif_file(sif_file, mutation_ccf_file, patient_data):
                                            purity=purity)
 
 
-def load_clustering_results(cluster_info_file, patient_data):
+# def load_clustering_results(cluster_info_file, patient_data):
+#     from .ClusterObject import Cluster
+#     clustering_results = {}
+#     ccf_headers = ['postDP_ccf_' + str(i / 100.0) for i in range(0, 101, 1)]
+#     sample_names = [sample.sample_name for sample in patient_data.sample_list]
+#     with open(cluster_info_file, 'r') as reader:
+#         for line in reader:
+#             values = line.strip('\n').split('\t')
+#             if line.startswith('Patient_ID'):
+#                 header = dict((item, idx) for idx, item in enumerate(values))
+#             else:
+#                 sample_id = values[header['Sample_ID']]
+#                 cluster_id = int(values[header['Cluster_ID']])
+#                 ccf = [float(values[header[i]]) for i in ccf_headers]
+#                 if cluster_id not in clustering_results:
+#                     new_cluster = Cluster(cluster_id, sample_names)
+#                     clustering_results[cluster_id] = new_cluster
+#                     logging.debug('Added cluster {} '.format(cluster_id))
+#                 clustering_results[cluster_id].add_sample_density(sample_id, ccf)
+#     for cluster_id, cluster in clustering_results.items():
+#         cluster.set_blacklist_status()
+#         clustering_results[cluster_id] = cluster
+#
+#     # Add mutations to the cluster
+#     mutations = patient_data.sample_list[0].mutations
+#     for mutation in mutations:
+#         cluster_id = mutation.cluster_assignment
+#         clustering_results[cluster_id].add_mutation(mutation)
+#
+#     patient_data.ClusteringResults = clustering_results
+
+def load_clustering_results(cluster_info_file, patient_data, blacklist_threshold=0.1, blacklist_cluster=None):
     from .ClusterObject import Cluster
     clustering_results = {}
     ccf_headers = ['postDP_ccf_' + str(i / 100.0) for i in range(0, 101, 1)]
@@ -92,18 +123,30 @@ def load_clustering_results(cluster_info_file, patient_data):
                 cluster_id = int(values[header['Cluster_ID']])
                 ccf = [float(values[header[i]]) for i in ccf_headers]
                 if cluster_id not in clustering_results:
-                    new_cluster = Cluster(cluster_id, sample_names)
+                    new_cluster = Cluster(cluster_id, sample_names, blacklist_threshold=blacklist_threshold)
                     clustering_results[cluster_id] = new_cluster
                     logging.debug('Added cluster {} '.format(cluster_id))
                 clustering_results[cluster_id].add_sample_density(sample_id, ccf)
+    if blacklist_cluster:
+        blacklist_cluster = [int(c) for c in blacklist_cluster]
+    else:
+        blacklist_cluster = []
     for cluster_id, cluster in clustering_results.items():
-        cluster.set_blacklist_status()
+        if cluster_id in blacklist_cluster:
+            # If need to force cluster to be blacklisted regardless of ccf
+            cluster.set_blacklist_status(check_ccf=False)
+        else:
+            # First check cluster for low ccf
+            cluster.set_blacklist_status(check_ccf=True)
         clustering_results[cluster_id] = cluster
 
-    # Add mutations to the cluster
-    mutations = patient_data.sample_list[0].mutations
-    for mutation in mutations:
-        cluster_id = mutation.cluster_assignment
-        clustering_results[cluster_id].add_mutation(mutation)
-
+    # Create for each cluster dictionary of mutations (key - mut_var_str and value- nd_histogram in log space)
+    mutations_nd_hist = {}
+    for sample in patient_data.sample_list:
+        for mutation in sample.mutations:
+            if mutation not in mutations_nd_hist:
+                mutations_nd_hist[mutation] = []
+            mutations_nd_hist[mutation].append(mutation.ccf_1d)
+    for mutation, mutation_nd_hist in mutations_nd_hist.items():
+        clustering_results[mutation.cluster_assignment].add_mutation(mutation, mutation_nd_hist)
     patient_data.ClusteringResults = clustering_results
