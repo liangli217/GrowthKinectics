@@ -9,7 +9,8 @@ def run_tool(args):
 
     patient_data = Patient.Patient(indiv_name=args.indiv_id)
     mcmc_trace_cell_abundance, num_itertaions = load_mcmc_trace_abundances(args.abundance_mcmc_trace)
-    gk_engine = GrowthKineticsEngine(patient_data, args.wbc)
+    times_sample, times, wbc_dfd, sample_wbc = load_wbc_file(args.wbc_time_file)
+    gk_engine = GrowthKineticsEngine(patient_data, wbc_dfd, times, times_sample, sample_wbc)
     gk_engine.estimate_growth_rate(mcmc_trace_cell_abundance, n_iter=min(num_itertaions, args.n_iter))
 
     # Output and visualization
@@ -34,3 +35,23 @@ def load_mcmc_trace_abundances(in_file):
                 iterations.add(values[header['Iteration']])
                 cell_abundance_mcmc_trace[sample_id][cluster_id].append(abundance)
     return cell_abundance_mcmc_trace, len(iterations)
+
+
+### Parse wbc file
+def load_wbc_file(file):
+    times_sample =[]
+    times = []
+    wbc =[]
+    sample_wbc = []
+
+    with open(file) as wbc_file:
+        next(wbc_file)
+        for line in wbc_file:
+            values = line.strip('\r\n').split('\t')
+            wbc.append(float(values[-1]))
+            times.append(float(values[1]))
+            if line.startswith('JB') or line.startswith('RP'):
+                times_sample.append(float(values[1]))
+                sample_wbc.append(values[0])
+
+    return times_sample, times, wbc, sample_wbc
